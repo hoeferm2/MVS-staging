@@ -1,66 +1,69 @@
-const express = require('express')
-const http = require("http");
-const socketio = require('socket.io');
 const path = require("path");
+const http = require("http");
+const express = require("express");
+const socketio = require("socket.io");
 const formatMessage = require("./utils/messages");
+// const createAdapter = require("@socket.io/redis-adapter").createAdapter;
+// const redis = require("redis");
+require("dotenv").config();
+// const { createClient } = redis;
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers,
+} = require("./utils/users");
 
-
-
-//SET UP EXPRESS 
-const app = express()
-//Create server connection
+const app = express();
 const server = http.createServer(app);
-//Socket connection
 const io = socketio(server);
-//STATIC PATH
-app.use(express.static('public'));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-})
+// Set static folder
+app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/chat', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/chat.html'));
-})
+const botName = "ChatCord Bot";
 
-app.get('/game', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/gameboard.html'));
-})
+// (async () => {
+//   pubClient = createClient({ url: "redis://127.0.0.1:6379" });
+//   await pubClient.connect();
+//   subClient = pubClient.duplicate();
+//   io.adapter(createAdapter(pubClient, subClient));
+// })();
 
-// SOCKET.IO
+// Run when client connects
 io.on("connection", (socket) => {
-    console.log(io.of("/").adapter);
-    socket.on("joinRoom", ({ username, room }) => {
-      const user = userJoin(socket.id, username, room);
-  
-      socket.join(user.room);
-  
-      // Welcome current user
-      socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
-  
-      // Broadcast when a user connects
-      socket.broadcast
-        .to(user.room)
-        .emit(
-          "message",
-          formatMessage(botName, `${user.username} has joined the chat`)
-        );
-  
-      // Send users and room info
-      io.to(user.room).emit("roomUsers", {
-        room: user.room,
-        users: getRoomUsers(user.room),
-      });
-    });
-  
-    // Listen for chatMessage
-    socket.on("chatMessage", (msg) => {
-      const user = getCurrentUser(socket.id);
-  
-      io.to(user.room).emit("message", formatMessage(user.username, msg));
-    });
+  console.log(io.of("/").adapter);
+  socket.on("joinRoom", ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
 
-      // Runs when client disconnects
+    socket.join(user.room);
+
+    // Welcome current user
+    socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
+
+    // Broadcast when a user connects
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "message",
+        formatMessage(botName, `${user.username} has joined the chat`)
+      );
+
+    // Send users and room info
+    io.to(user.room).emit("roomUsers", {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
+  });
+
+  // Listen for chatMessage
+  socket.on("chatMessage", (msg) => {
+    const user = getCurrentUser(socket.id);
+
+    io.to(user.room).emit("message", formatMessage(user.username, msg));
+  });
+
+  // Runs when client disconnects
   socket.on("disconnect", () => {
     const user = userLeave(socket.id);
 
@@ -79,15 +82,6 @@ io.on("connection", (socket) => {
   });
 });
 
-//PORT CONECTION
-const PORT = process.env.PORT || 8080;
-//DATA PARSE
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-//INITIAL GET REQUEST
+const PORT = process.env.PORT || 3000;
 
-
-//LISTENING FUNCTION
-app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT)
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
