@@ -28,10 +28,12 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   cors({
-    origin: "http//localhost:3000",
-    methods: ["GET", "POST"]
+    origin: ["https://upbeat-northcutt-4650a4.netlify.app"],
+    methods: ["GET", "POST", "DELETE"],
+    credentials: true,
+    origin: true,
   })
-)
+);
 
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, "/public/chat.html"));
