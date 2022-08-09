@@ -2,11 +2,7 @@ const path = require("path");
 const http = require("http");
 const cors = require('cors')
 const express = require("express");
-const socketio = require("socket.io")(PORT, {
-  cors: {
-    origin: ["*"]
-  }
-});
+const socketio = require("socket.io")
 const formatMessage = require("./utils/messages");
 // const createAdapter = require("@socket.io/redis-adapter").createAdapter;
 // const redis = require("redis");
@@ -28,7 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   cors({
-    origin: ["https://upbeat-northcutt-4650a4.netlify.app"],
+    origin: ["*"],
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
     origin: true,
