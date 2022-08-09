@@ -1,9 +1,10 @@
 const path = require("path");
 const http = require("http");
+const cors = require('cors')
 const express = require("express");
 const socketio = require("socket.io")(PORT, {
   cors: {
-    origin: ["http://localhost:3000/"]
+    origin: ["*"]
   }
 });
 const formatMessage = require("./utils/messages");
