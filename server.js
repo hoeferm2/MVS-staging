@@ -26,6 +26,13 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"]
+  })
+)
+
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, "/public/chat.html"));
 })
