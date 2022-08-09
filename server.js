@@ -37,7 +37,7 @@ const botName = "ChatCord Bot";
 const userIo = io.of('/chat')
 
 userIo.on("connection", (socket) => {
-  console.log(userIo.of("/chat").adapter);
+  // console.log(userIo.of("/chat").adapter);
   socket.on("joinRoom", ({ username, room }) => {
     const user = userJoin(socket.id, username, room);
 

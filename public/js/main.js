@@ -8,11 +8,11 @@ const { username, room } = Qs.parse(location.search, {
     ignoreQueryPrefix: true,
 });
 
-// const socket = io('https://monekys-vs-shake-io.herokuapp.com');
-// const userSocket = io('https://monekys-vs-shake-io.herokuapp.com/chat')
+const socket = io('https://monekys-vs-shake-io.herokuapp.com');
+const userSocket = io('https://monekys-vs-shake-io.herokuapp.com/chat')
 
-const socket = io('http://localhost:3000');
-const userSocket = io('http://localhost:3000/chat')
+// const socket = io('http://localhost:3000');
+// const userSocket = io('http://localhost:3000/chat')
 
 // Join chatroom
 socket.emit('joinRoom', { username, room });
