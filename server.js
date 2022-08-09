@@ -21,6 +21,10 @@ const io = socketio(server);
 // Set static folder
 app.use(express.static(path.join(__dirname, "public")));
 
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, "/public/chat.html"));
+})
+
 const botName = "ChatCord Bot";
 
 // (async () => {
@@ -29,9 +33,64 @@ const botName = "ChatCord Bot";
 //   subClient = pubClient.duplicate();
 //   io.adapter(createAdapter(pubClient, subClient));
 // })();
+//Seperate IO instance
+const userIo = io.of('/chat')
+
+userIo.on("connection", (socket) => {
+  console.log(userIo.of("/chat").adapter);
+  socket.on("joinRoom", ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
+
+    socket.join(user.room);
+
+    // Welcome current user
+    socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
+
+    // Broadcast when a user connects
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "message",
+        formatMessage(botName, `${user.username} has joined the chat`)
+      );
+
+    // Send users and room info
+    userIo.to(user.room).emit("roomUsers", {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
+  });
+
+  // Listen for chatMessage
+  socket.on("chatMessage", (msg) => {
+    const user = getCurrentUser(socket.id);
+
+    userIo.to(user.room).emit("message", formatMessage(user.username, msg));
+  });
+
+  // Runs when client disconnects
+  socket.on("disconnect", () => {
+    const user = userLeave(socket.id);
+
+    if (user) {
+      userIo.to(user.room).emit(
+        "message",
+        formatMessage(botName, `${user.username} has left the chat`)
+      );
+
+      // Send users and room info
+      userIo.to(user.room).emit("roomUsers", {
+        room: user.room,
+        users: getRoomUsers(user.room),
+      });
+    }
+  });
+});
+
+
 
 // Run when client connects
-io.of('/chat').on("connection", (socket) => {
+io.on("connection", (socket) => {
   console.log(io.of("/").adapter);
   socket.on("joinRoom", ({ username, room }) => {
     const user = userJoin(socket.id, username, room);
