@@ -1,7 +1,11 @@
 const path = require("path");
 const http = require("http");
 const express = require("express");
-const socketio = require("socket.io");
+const socketio = require("socket.io")(PORT, {
+  cors: {
+    origin: ["http://localhost:3000/chat"]
+  }
+});
 const formatMessage = require("./utils/messages");
 // const createAdapter = require("@socket.io/redis-adapter").createAdapter;
 // const redis = require("redis");
@@ -34,60 +38,58 @@ const botName = "ChatCord Bot";
 //   io.adapter(createAdapter(pubClient, subClient));
 // })();
 //Seperate IO instance
-const userIo = io.of('/chat')
+// const userIo = io.of('/chat')
 
-userIo.on("connection", (socket) => {
-  // console.log(userIo.of("/chat").adapter);
-  socket.on("joinRoom", ({ username, room }) => {
-    const user = userJoin(socket.id, username, room);
+// userIo.on("connection", (socket) => {
+//   // console.log(userIo.of("/chat").adapter);
+//   socket.on("joinRoom", ({ username, room }) => {
+//     const user = userJoin(socket.id, username, room);
 
-    socket.join(user.room);
+//     socket.join(user.room);
 
-    // Welcome current user
-    socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
+//     // Welcome current user
+//     socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
 
-    // Broadcast when a user connects
-    socket.broadcast
-      .to(user.room)
-      .emit(
-        "message",
-        formatMessage(botName, `${user.username} has joined the chat`)
-      );
+//     // Broadcast when a user connects
+//     socket.broadcast
+//       .to(user.room)
+//       .emit(
+//         "message",
+//         formatMessage(botName, `${user.username} has joined the chat`)
+//       );
 
-    // Send users and room info
-    userIo.to(user.room).emit("roomUsers", {
-      room: user.room,
-      users: getRoomUsers(user.room),
-    });
-  });
+//     // Send users and room info
+//     userIo.to(user.room).emit("roomUsers", {
+//       room: user.room,
+//       users: getRoomUsers(user.room),
+//     });
+//   });
 
-  // Listen for chatMessage
-  socket.on("chatMessage", (msg) => {
-    const user = getCurrentUser(socket.id);
+//   // Listen for chatMessage
+//   socket.on("chatMessage", (msg) => {
+//     const user = getCurrentUser(socket.id);
 
-    userIo.to(user.room).emit("message", formatMessage(user.username, msg));
-  });
+//     userIo.to(user.room).emit("message", formatMessage(user.username, msg));
+//   });
 
-  // Runs when client disconnects
-  socket.on("disconnect", () => {
-    const user = userLeave(socket.id);
+//   // Runs when client disconnects
+//   socket.on("disconnect", () => {
+//     const user = userLeave(socket.id);
 
-    if (user) {
-      userIo.to(user.room).emit(
-        "message",
-        formatMessage(botName, `${user.username} has left the chat`)
-      );
+//     if (user) {
+//       userIo.to(user.room).emit(
+//         "message",
+//         formatMessage(botName, `${user.username} has left the chat`)
+//       );
 
-      // Send users and room info
-      userIo.to(user.room).emit("roomUsers", {
-        room: user.room,
-        users: getRoomUsers(user.room),
-      });
-    }
-  });
-});
-
-
+//       // Send users and room info
+//       userIo.to(user.room).emit("roomUsers", {
+//         room: user.room,
+//         users: getRoomUsers(user.room),
+//       });
+//     }
+//   });
+// });
 
 // Run when client connects
 io.on("connection", (socket) => {
