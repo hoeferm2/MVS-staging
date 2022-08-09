@@ -3,7 +3,7 @@ const http = require("http");
 const express = require("express");
 const socketio = require("socket.io")(PORT, {
   cors: {
-    origin: ["http://localhost:3000/chat"]
+    origin: ["http://localhost:3000/"]
   }
 });
 const formatMessage = require("./utils/messages");
