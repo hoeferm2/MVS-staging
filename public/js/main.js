@@ -8,31 +8,31 @@ const { username, room } = Qs.parse(location.search, {
     ignoreQueryPrefix: true,
 });
 
-const socket = io('https://monekys-vs-shake-io.herokuapp.com');
-const userSocket = io('https://monekys-vs-shake-io.herokuapp.com/chat')
+// const socket = io('https://monekys-vs-shake-io.herokuapp.com');
+const userSocket = io('https://monekys-vs-shake-io.herokuapp.com')
 
 // const socket = io('http://localhost:3000');
 // const userSocket = io('http://localhost:3000/chat')
 
-// Join chatroom
-socket.emit('joinRoom', { username, room });
+// // Join chatroom
+// socket.emit('joinRoom', { username, room });
 
-// Get room and users
-socket.on('roomUsers', ({ room, users }) => {
-    outputRoomName(room);
-    outputUsers(users);
-});
+// // Get room and users
+// socket.on('roomUsers', ({ room, users }) => {
+//     outputRoomName(room);
+//     outputUsers(users);
+// });
 
-// Message from server
-socket.on('message', (message) => {
-    console.log(message);
-    outputMessage(message);
+// // Message from server
+// socket.on('message', (message) => {
+//     console.log(message);
+//     outputMessage(message);
 
-    // Scroll down
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-});
+//     // Scroll down
+//     chatMessages.scrollTop = chatMessages.scrollHeight;
+// });
 
-socket.emit('joinRoom', { username, room });
+// socket.emit('joinRoom', { username, room });
 
 // Get room and users
 userSocket.on('roomUsers', ({ room, users }) => {
